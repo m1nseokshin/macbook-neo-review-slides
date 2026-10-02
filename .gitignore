@@ -1,0 +1,6 @@
+.env
+__pycache__/
+*.log
+.DS_Store
+firecrawl_sample.html
+preloaded_state.json

@@ -1,0 +1,1022 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>애플 맥북 네오 526건 전수 리뷰 심층 분석 & 봇 검사 슬라이드 덱</title>
+  <!-- Google Fonts, Chart.js, Anime.js -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+  <style>
+    :root {
+      --bg-dark: #07090e;
+      --bg-surface: #0f121d;
+      --bg-card: rgba(20, 24, 38, 0.75);
+      --border-card: rgba(255, 255, 255, 0.08);
+      --accent-citrus: #fcd34d;
+      --accent-blue: #38bdf8;
+      --accent-indigo: #818cf8;
+      --accent-purple: #c084fc;
+      --accent-rose: #fb7185;
+      --accent-green: #4ade80;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body {
+      font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: var(--bg-dark);
+      background-image: 
+        radial-gradient(at 0% 0%, rgba(56, 189, 248, 0.12) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(252, 211, 77, 0.08) 0px, transparent 50%);
+      color: var(--text-main);
+      overflow: hidden;
+      width: 100vw;
+      height: 100vh;
+      user-select: none;
+    }
+
+    /* Top Progress Bar */
+    #progress-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 4px;
+      background: rgba(255, 255, 255, 0.06);
+      z-index: 1000;
+    }
+    #progress-bar {
+      height: 100%;
+      width: 12.5%;
+      background: linear-gradient(90deg, #fcd34d, #38bdf8, #c084fc);
+      transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: 0 0 12px rgba(56, 189, 248, 0.6);
+    }
+
+    /* Header Nav */
+    header {
+      position: fixed;
+      top: 14px;
+      left: 28px;
+      right: 28px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 999;
+      pointer-events: none;
+    }
+    .brand-badge {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: rgba(15, 23, 42, 0.8);
+      backdrop-filter: blur(16px);
+      padding: 8px 18px;
+      border-radius: 9999px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      color: var(--accent-citrus);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+    }
+    .slide-counter {
+      background: rgba(15, 23, 42, 0.8);
+      backdrop-filter: blur(16px);
+      padding: 8px 18px;
+      border-radius: 9999px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      font-size: 0.85rem;
+      font-weight: 700;
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--text-muted);
+    }
+    .slide-counter span#current-slide-num {
+      color: var(--accent-citrus);
+      font-size: 1rem;
+    }
+
+    /* Presentation Slider Deck */
+    .slider-viewport {
+      width: 100vw;
+      height: 100vh;
+      position: relative;
+    }
+
+    .slide {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      padding: 74px 60px 65px 60px;
+      display: flex;
+      flex-direction: column;
+      opacity: 0;
+      visibility: hidden;
+      transform: scale(0.96) translateY(24px);
+      transition: opacity 0.5s ease, transform 0.5s ease, visibility 0.5s;
+      overflow-y: auto;
+    }
+
+    .slide.active {
+      opacity: 1;
+      visibility: visible;
+      transform: scale(1) translateY(0);
+      z-index: 10;
+    }
+
+    /* Slide Titles */
+    .slide-header {
+      margin-bottom: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+    .slide-category {
+      font-size: 0.82rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: var(--accent-citrus);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .slide-category::before {
+      content: '';
+      display: inline-block;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--accent-citrus);
+      box-shadow: 0 0 8px var(--accent-citrus);
+    }
+    .slide-title {
+      font-size: 2.15rem;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      background: linear-gradient(135deg, #ffffff 40%, #94a3b8 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .slide-subtitle {
+      font-size: 1rem;
+      color: var(--text-muted);
+      font-weight: 400;
+    }
+
+    /* Glass Cards */
+    .card {
+      background: var(--bg-card);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--border-card);
+      border-radius: 20px;
+      padding: 22px;
+      box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.6);
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+    .card:hover {
+      border-color: rgba(255, 255, 255, 0.2);
+      transform: translateY(-3px);
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+    }
+
+    /* Grid Layouts */
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 22px;
+      flex: 1;
+      align-items: stretch;
+    }
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      flex: 1;
+    }
+    .grid-4 {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+
+    /* Metric Box */
+    .metric-value {
+      font-size: 2.7rem;
+      font-weight: 800;
+      line-height: 1.1;
+      margin: 6px 0;
+      letter-spacing: -1px;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .metric-label {
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: var(--text-muted);
+    }
+    .metric-sub {
+      font-size: 0.78rem;
+      color: #64748b;
+      margin-top: 4px;
+    }
+
+    /* Slide 1 - Cover Hero */
+    .cover-layout {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 40px;
+      height: 100%;
+      align-items: center;
+    }
+    .cover-content h1 {
+      font-size: 3.3rem;
+      font-weight: 900;
+      line-height: 1.15;
+      letter-spacing: -1px;
+      margin-bottom: 18px;
+    }
+    .cover-highlight {
+      background: linear-gradient(135deg, #fcd34d 0%, #fb923c 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .cover-desc {
+      font-size: 1.15rem;
+      line-height: 1.6;
+      color: #94a3b8;
+      margin-bottom: 28px;
+      max-width: 580px;
+    }
+    .cover-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .tag {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      padding: 6px 14px;
+      border-radius: 9999px;
+      font-size: 0.82rem;
+      font-weight: 600;
+    }
+    .cover-image-container {
+      position: relative;
+      border-radius: 24px;
+      overflow: hidden;
+      box-shadow: 0 30px 60px rgba(0, 0, 0, 0.75);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      height: 460px;
+    }
+    .cover-image-container img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.8s ease;
+    }
+    .cover-image-container:hover img {
+      transform: scale(1.03);
+    }
+    .img-badge {
+      position: absolute;
+      bottom: 16px;
+      right: 16px;
+      background: rgba(10, 11, 16, 0.85);
+      backdrop-filter: blur(10px);
+      padding: 6px 14px;
+      border-radius: 8px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: #fcd34d;
+      border: 1px solid rgba(252, 211, 77, 0.3);
+    }
+
+    /* Chart Containers */
+    .chart-box {
+      position: relative;
+      width: 100%;
+      height: 270px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    /* Matplotlib Image Container */
+    .mpl-image-box {
+      width: 100%;
+      height: 100%;
+      min-height: 250px;
+      border-radius: 14px;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: #0f111a;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .mpl-image-box img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      transition: transform 0.4s ease;
+    }
+    .mpl-image-box:hover img {
+      transform: scale(1.02);
+    }
+
+    /* Custom Lists */
+    .custom-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 8px;
+    }
+    .custom-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      font-size: 0.92rem;
+      line-height: 1.5;
+      color: #cbd5e1;
+    }
+    .bullet {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent-citrus);
+      margin-top: 6px;
+      flex-shrink: 0;
+      box-shadow: 0 0 6px var(--accent-citrus);
+    }
+
+    /* Persona quote card */
+    .quote-box {
+      background: rgba(30, 41, 59, 0.4);
+      border-left: 4px solid var(--accent-citrus);
+      padding: 12px 16px;
+      border-radius: 0 12px 12px 0;
+      margin-bottom: 10px;
+    }
+    .quote-author {
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--accent-blue);
+      margin-bottom: 4px;
+    }
+    .quote-text {
+      font-size: 0.88rem;
+      color: #e2e8f0;
+      line-height: 1.5;
+    }
+
+    /* Controls Bar */
+    .controls {
+      position: fixed;
+      bottom: 18px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: rgba(15, 23, 42, 0.9);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      padding: 8px 18px;
+      border-radius: 9999px;
+      z-index: 1000;
+      box-shadow: 0 12px 35px rgba(0, 0, 0, 0.6);
+    }
+    .btn-nav {
+      background: transparent;
+      border: none;
+      color: #94a3b8;
+      cursor: pointer;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      transition: all 0.2s ease;
+    }
+    .btn-nav:hover {
+      background: rgba(255, 255, 255, 0.12);
+      color: #ffffff;
+    }
+    .nav-indicator {
+      display: flex;
+      gap: 6px;
+      padding: 0 6px;
+    }
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.2);
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .dot.active {
+      width: 26px;
+      border-radius: 12px;
+      background: var(--accent-citrus);
+      box-shadow: 0 0 10px rgba(252, 211, 77, 0.6);
+    }
+
+    /* Anime.js Stagger Target Base Class */
+    .anime-up {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+
+    @media (max-width: 1024px) {
+      .slide { padding: 65px 24px 55px 24px; }
+      .grid-2, .grid-3, .cover-layout { grid-template-columns: 1fr; }
+      .cover-image-container { height: 250px; }
+      .slide-title { font-size: 1.7rem; }
+      .metric-value { font-size: 2.1rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Progress Bar -->
+  <div id="progress-container">
+    <div id="progress-bar"></div>
+  </div>
+
+  <!-- Header -->
+  <header>
+    <div class="brand-badge">
+      <span>⚡ APPLE MACBOOK NEO</span>
+      <span style="opacity: 0.3;">|</span>
+      <span>526건 전수 리뷰 빅데이터 & AI 봇 검사</span>
+    </div>
+    <div class="slide-counter">
+      SLIDE <span id="current-slide-num">1</span> / <span id="total-slide-num">8</span>
+    </div>
+  </header>
+
+  <!-- Slider Viewport -->
+  <main class="slider-viewport">
+
+    <!-- SLIDE 1: Title Hero -->
+    <section class="slide active" id="slide-1">
+      <div class="cover-layout">
+        <div class="cover-content">
+          <div class="slide-category anime-up">Big Data & AI Review Intelligence</div>
+          <h1 class="anime-up">
+            애플 맥북 네오<br>
+            <span class="cover-highlight">526건 전수 리뷰</span><br>
+            심층 분석 & 봇 검사
+          </h1>
+          <p class="cover-desc anime-up">
+            네이버 애플 공식 브랜드스토어 구매자 526명 전원의 후기를 100% 전수 마이닝하여 만족도, 옵션 선호도, 실사용 체감 스펙 및 AI 어뷰징/봇 탐지 결과를 종합 진단합니다.
+          </p>
+          <div class="cover-tags anime-up">
+            <span class="tag" style="color: #fcd34d;">⭐ 평균 평점 4.91</span>
+            <span class="tag" style="color: #38bdf8;">📸 포토리뷰 77.6% (408건)</span>
+            <span class="tag" style="color: #4ade80;">🛡️ 봇 이상치 0.6%</span>
+            <span class="tag" style="color: #c084fc;">🎨 실버 1위(138명)</span>
+          </div>
+        </div>
+        <div class="cover-image-container anime-up">
+          <img src="assets/macbook_neo_cover.jpg" alt="Apple MacBook Neo Showcase">
+          <div class="img-badge">✨ Generated by Nano Banana AI</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 2: Executive Summary -->
+    <section class="slide" id="slide-2">
+      <div class="slide-header">
+        <div class="slide-category anime-up">Executive Summary</div>
+        <h2 class="slide-title anime-up">맥북 네오 (A18 Pro) 핵심 분석 지표</h2>
+        <p class="slide-subtitle anime-up">출시 시점(2026.03)부터 9월 말까지의 526건 전수 데이터 요약</p>
+      </div>
+      <div class="grid-4" style="margin-bottom: 22px;">
+        <div class="card anime-up">
+          <div class="metric-label">전수 수집 리뷰</div>
+          <div class="metric-value count-int" data-target="526" style="color: #fcd34d;">0<span style="font-size: 1.2rem;">건</span></div>
+          <div class="metric-sub">결측/누락 없이 100% 수집</div>
+        </div>
+        <div class="card anime-up">
+          <div class="metric-label">전체 평균 평점</div>
+          <div class="metric-value count-float" data-target="4.91" style="color: #38bdf8;">0.00<span style="font-size: 1.2rem;">/ 5.0</span></div>
+          <div class="metric-sub">5점 만점 93.2% 압도적 호평</div>
+        </div>
+        <div class="card anime-up">
+          <div class="metric-label">실물 포토 리뷰율</div>
+          <div class="metric-value count-float" data-target="77.6" style="color: #4ade80;">0.0<span style="font-size: 1.2rem;">%</span></div>
+          <div class="metric-sub">총 408건의 실물 인증 사진</div>
+        </div>
+        <div class="card anime-up">
+          <div class="metric-label">성능 만족 비율</div>
+          <div class="metric-value count-float" data-target="87.6" style="color: #c084fc;">0.0<span style="font-size: 1.2rem;">%</span></div>
+          <div class="metric-sub">461명이 '성능 좋아요' 선택</div>
+        </div>
+      </div>
+      <div class="grid-2">
+        <div class="card anime-up">
+          <h3 style="font-size: 1.1rem; margin-bottom: 12px; color: #fcd34d;">💡 핵심 분석 하이라이트</h3>
+          <ul class="custom-list">
+            <li><span class="bullet"></span><div><strong>휴대성과 디자인의 극찬:</strong> 맥북 에어 대비 체감 무게와 콤팩트한 폼팩터로 대학원생·직장인의 만족도가 최상위입니다.</div></li>
+            <li><span class="bullet"></span><div><strong>A18 Pro 칩셋의 실용성:</strong> 문서 작업, 블로그, 코딩, 일러스트 등 일상 헤비 유저까지 발열과 소음 없이 완벽히 소화합니다.</div></li>
+            <li><span class="bullet"></span><div><strong>신규 컬러의 대중화:</strong> 전통의 실버(138명)에 이어 인디고(113명), 블러시(112명), 시트러스(86명) 등 전 컬러가 고르게 사랑받고 있습니다.</div></li>
+          </ul>
+        </div>
+        <div class="card anime-up">
+          <h3 style="font-size: 1.1rem; margin-bottom: 12px; color: #38bdf8;">⚠️ 주의점 및 개선 건의</h3>
+          <ul class="custom-list">
+            <li><span class="bullet" style="background:#fb7185; box-shadow: 0 0 6px #fb7185;"></span><div><strong>무게 체감의 양극화:</strong> 66.9%는 '적당하다'고 평가했으나, 22.6%(119명)는 기대 대비 '묵직하다'고 응답했습니다.</div></li>
+            <li><span class="bullet" style="background:#fb7185; box-shadow: 0 0 6px #fb7185;"></span><div><strong>용량 업그레이드 수요:</strong> 256GB 구매자 중 512GB로 재구매하거나 후회하는 피드백이 다수 확인되었습니다.</div></li>
+            <li><span class="bullet" style="background:#fb7185; box-shadow: 0 0 6px #fb7185;"></span><div><strong>배송 포장 피드백:</strong> 고가 전자기기임에도 박스 완충재 포장 상태에 대한 아쉬움이 일부 언급되었습니다.</div></li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 3: Rating Distribution -->
+    <section class="slide" id="slide-3">
+      <div class="slide-header">
+        <div class="slide-category anime-up">Customer Satisfaction</div>
+        <h2 class="slide-title anime-up">평점 분포 및 만족도 심층 분석</h2>
+        <p class="slide-subtitle anime-up">전체 526건 중 5점 93.2%, 부정 리뷰(1~2점)는 단 0.4%에 불과</p>
+      </div>
+      <div class="grid-2">
+        <div class="card anime-up" style="display: flex; flex-direction: column;">
+          <h3 style="font-size: 1.1rem; margin-bottom: 8px;">📊 평점별 비율 (Chart.js Interactive)</h3>
+          <div class="chart-box">
+            <canvas id="ratingChart"></canvas>
+          </div>
+          <div style="display: flex; justify-content: space-around; margin-top: 14px; text-align: center;">
+            <div><span style="color:#4ade80; font-weight:700;">⭐ 5점</span><br><strong>490건 (93.2%)</strong></div>
+            <div><span style="color:#38bdf8; font-weight:700;">⭐ 4점</span><br><strong>28건 (5.3%)</strong></div>
+            <div><span style="color:#fcd34d; font-weight:700;">⭐ 3점</span><br><strong>6건 (1.1%)</strong></div>
+            <div><span style="color:#fb7185; font-weight:700;">⭐ 1점</span><br><strong>2건 (0.4%)</strong></div>
+          </div>
+        </div>
+        <div class="card anime-up">
+          <h3 style="font-size: 1.1rem; margin-bottom: 14px;">🔍 평점 구간별 실제 VoC</h3>
+          <div class="quote-box" style="border-left-color: #4ade80;">
+            <div class="quote-author">⭐ 5점 구매자 (pyuh******)</div>
+            <div class="quote-text">"맥북 에어보다 훨씬 가벼워서 휴대하기 좋습니다. 남편 대학원 논문 작업용으로 급히 샀는데 너무 만족해합니다. 사무직과 학생에게 딱입니다."</div>
+          </div>
+          <div class="quote-box" style="border-left-color: #38bdf8;">
+            <div class="quote-author">⭐ 4점 구매자 (khsc****)</div>
+            <div class="quote-text">"디자인과 배터리는 만족스러우나 생각했던 것보다는 살짝 묵직한 감이 있습니다. 하지만 가성비로는 최고입니다."</div>
+          </div>
+          <div class="quote-box" style="border-left-color: #fb7185;">
+            <div class="quote-author">⭐ 1점 구매자 (1g****)</div>
+            <div class="quote-text">"박스 테이프 마감 및 외부 포장 상태가 다소 미흡해서 파손될까 봐 걱정스러웠습니다. 배송 포장 개선이 필요합니다."</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 4: Options & Color Analysis -->
+    <section class="slide" id="slide-4">
+      <div class="slide-header">
+        <div class="slide-category anime-up">Product Option Intelligence</div>
+        <h2 class="slide-title anime-up">구매 옵션 결합 매트릭스 (Matplotlib 정밀 차트)</h2>
+        <p class="slide-subtitle anime-up">색상 4종(실버, 인디고, 블러시, 시트러스)과 256GB / 512GB 저장용량 선택 교차 분석</p>
+      </div>
+      <div class="grid-2">
+        <div class="card anime-up">
+          <h3 style="font-size: 1.05rem; margin-bottom: 10px; color: #fcd34d;">📈 색상 x 저장용량 Top 8 조합 (Matplotlib 렌더링)</h3>
+          <div class="mpl-image-box">
+            <img src="assets/chart_combos.png" alt="Color and Storage Combos">
+          </div>
+        </div>
+        <div class="card anime-up" style="display: flex; flex-direction: column;">
+          <h3 style="font-size: 1.05rem; margin-bottom: 10px; color: #38bdf8;">💾 저장용량 비율 & 색상 선호 요약</h3>
+          <div class="chart-box" style="height: 190px;">
+            <canvas id="storageChart"></canvas>
+          </div>
+          <ul class="custom-list" style="margin-top: 12px;">
+            <li><span class="bullet"></span><div><strong>256GB (53.7% - 241명):</strong> 라이트 문서 작업/웹서핑 및 예산 절감 유저 다수</div></li>
+            <li><span class="bullet"></span><div><strong>512GB (46.3% - 208명):</strong> 사진/영상 보관 및 장기 사용 목적의 기변 유저 집중</div></li>
+            <li><span class="bullet"></span><div><strong>색상 점유:</strong> 실버(138명) > 인디고(113명) > 블러시(112명) > 시트러스(86명)</div></li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 5: Weight & Performance Evaluation -->
+    <section class="slide" id="slide-5">
+      <div class="slide-header">
+        <div class="slide-category anime-up">User Experience Reality</div>
+        <h2 class="slide-title anime-up">실사용 체감: 무게와 성능 팩트체크</h2>
+        <p class="slide-subtitle anime-up">네이버 공식 구매자 설문 매핑 데이터를 통한 실생활 체감도 진단</p>
+      </div>
+      <div class="grid-2">
+        <div class="card anime-up">
+          <h3 style="font-size: 1.1rem; margin-bottom: 8px;">⚖️ 무게 체감 평가 (352명 적당 / 119명 무거움)</h3>
+          <div class="chart-box">
+            <canvas id="weightChart"></canvas>
+          </div>
+          <div style="margin-top: 14px; font-size: 0.88rem; color: #cbd5e1; line-height: 1.5;">
+            • <strong>적당해요 (66.9%):</strong> 대부분의 일상 휴대에서 무리 없는 무게 수준<br>
+            • <strong>무거워요 (22.6%):</strong> 태블릿/에어 대비 금속 하우징의 밀도감으로 인해 다소 묵직함 호소
+          </div>
+        </div>
+        <div class="card anime-up">
+          <h3 style="font-size: 1.1rem; margin-bottom: 8px;">🚀 A18 Pro 칩셋 성능 평가</h3>
+          <div class="chart-box">
+            <canvas id="perfChart"></canvas>
+          </div>
+          <div style="margin-top: 14px; font-size: 0.88rem; color: #cbd5e1; line-height: 1.5;">
+            • <strong>좋아요 (87.6% - 461명):</strong> 발열 제어 및 배터리 타임, 앱 전환 반응성 극찬<br>
+            • <strong>보통이에요 (12.4% - 65명):</strong> 고사양 3D 렌더링/영상 편집에는 프로 라인업 권장
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 6: AI Abuse & Bot Detection -->
+    <section class="slide" id="slide-6">
+      <div class="slide-header">
+        <div class="slide-category anime-up">Cyber Security & Data Integrity</div>
+        <h2 class="slide-title anime-up">🛡️ AI 어뷰징 및 봇(매크로/파밍) 탐지 분석</h2>
+        <p class="slide-subtitle anime-up">자체 알고리즘(초단문, 템플릿 상투어, 기호비율, 실사용맥락) 적용 전수 검사 결과</p>
+      </div>
+      <div class="grid-2">
+        <div class="card anime-up">
+          <h3 style="font-size: 1.05rem; margin-bottom: 10px; color: #4ade80;">🔍 글자수 대비 어뷰징 위험도 산포도 (Matplotlib 정밀 차트)</h3>
+          <div class="mpl-image-box">
+            <img src="assets/chart_abuse_analysis.png" alt="Abuse Analysis Chart">
+          </div>
+        </div>
+        <div class="card anime-up" style="display: flex; flex-direction: column; justify-content: space-between;">
+          <div style="border-radius: 16px; overflow: hidden; height: 160px; margin-bottom: 12px; border: 1px solid rgba(56, 189, 248, 0.25);">
+            <img src="assets/ai_bot_shield.jpg" alt="AI Shield" style="width: 100%; height: 100%; object-fit: cover;">
+          </div>
+          <div>
+            <h4 style="color: #38bdf8; font-size: 1.05rem; margin-bottom: 8px;">진단 결과 종합</h4>
+            <p style="font-size: 0.88rem; color: #cbd5e1; line-height: 1.5; margin-bottom: 8px;">
+              조직적 매크로 도배(Bot Attack)는 <strong>0.6%(3건)에 불과</strong>하여 상품 리뷰의 순수 신뢰도는 매우 높습니다.
+            </p>
+            <p style="font-size: 0.88rem; color: #cbd5e1; line-height: 1.5;">
+              주의(38.2%)의 대부분은 <strong>네이버페이 포인트 획득을 위한 10~20자 내외의 단순 단답형 실구매자</strong>로 파악되었습니다.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 7: Voice of Customer & Personas -->
+    <section class="slide" id="slide-7">
+      <div class="slide-header">
+        <div class="slide-category anime-up">User Voice & Personas</div>
+        <h2 class="slide-title anime-up">누가, 왜 맥북 네오를 샀는가? (VoC)</h2>
+        <p class="slide-subtitle anime-up">526건 텍스트 마이닝을 통해 도출한 4대 핵심 구매자 페르소나</p>
+      </div>
+      <div class="grid-2">
+        <div class="card anime-up">
+          <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+            <span style="font-size: 1.5rem;">🎓</span>
+            <h3 style="font-size: 1.1rem; color: #fcd34d;">대학원생 & 학업 연구자</h3>
+          </div>
+          <p style="font-size: 0.9rem; color: #cbd5e1; line-height: 1.5; margin-bottom: 10px;">
+            "논문 작성, 학회 발표, 도서관 열람실 작업용으로 완벽합니다. 하루 종일 충전기 없이 다닐 수 있는 배터리 타임이 최고의 강점입니다."
+          </p>
+          <div class="quote-box" style="margin: 0;">
+            <div class="quote-text">대표 키워드: 논문, 학회, 도서관, 가벼움, 강의실</div>
+          </div>
+        </div>
+        <div class="card anime-up">
+          <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+            <span style="font-size: 1.5rem;">💼</span>
+            <h3 style="font-size: 1.1rem; color: #38bdf8;">사무직 & 블로그/크리에이터</h3>
+          </div>
+          <p style="font-size: 0.9rem; color: #cbd5e1; line-height: 1.5; margin-bottom: 10px;">
+            "사무실 밖 카페나 출장지에서 블로그 포스팅, 웹서핑, 문서 편집용으로 사용하기에 가성비와 화면 품질이 너무 좋습니다."
+          </p>
+          <div class="quote-box" style="margin: 0;">
+            <div class="quote-text">대표 키워드: 블로그, 재택, 서치, 출장, 카페</div>
+          </div>
+        </div>
+        <div class="card anime-up">
+          <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+            <span style="font-size: 1.5rem;">🎨</span>
+            <h3 style="font-size: 1.1rem; color: #c084fc;">디자인 & 감성 만족 유저</h3>
+          </div>
+          <p style="font-size: 0.9rem; color: #cbd5e1; line-height: 1.5; margin-bottom: 10px;">
+            "시트러스와 블러시 색상 실물이 미쳤습니다. 맥북병은 맥북을 사야 낫는다는 말이 맞네요. 열 때마다 기분이 좋아집니다."
+          </p>
+          <div class="quote-box" style="margin: 0;">
+            <div class="quote-text">대표 키워드: 실물 깡패, 감성, 시트러스, 맥북병, 예쁨</div>
+          </div>
+        </div>
+        <div class="card anime-up">
+          <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+            <span style="font-size: 1.5rem;">🔄</span>
+            <h3 style="font-size: 1.1rem; color: #4ade80;">용량 기변 & 서브 노트북 유저</h3>
+          </div>
+          <p style="font-size: 0.9rem; color: #cbd5e1; line-height: 1.5; margin-bottom: 10px;">
+            "데스크탑이 따로 있어서 서브용으로 구매했는데, 256GB보다는 512GB를 선택하길 잘했습니다. 쾌적함이 다릅니다."
+          </p>
+          <div class="quote-box" style="margin: 0;">
+            <div class="quote-text">대표 키워드: 512GB 추천, 서브 노트북, 기변, 정착</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 8: Timeline & Strategic Takeaways -->
+    <section class="slide" id="slide-8">
+      <div class="slide-header">
+        <div class="slide-category anime-up">Strategic Conclusion</div>
+        <h2 class="slide-title anime-up">월별 리뷰 추이 & 종합 인사이트</h2>
+        <p class="slide-subtitle anime-up">2026년 3월 출시부터 9월까지의 누적 성장 곡선 및 비즈니스 제언</p>
+      </div>
+      <div class="grid-2">
+        <div class="card anime-up">
+          <h3 style="font-size: 1.05rem; margin-bottom: 10px; color: #38bdf8;">📅 월별 리뷰 등록 및 누적 성장 곡선 (Matplotlib)</h3>
+          <div class="mpl-image-box">
+            <img src="assets/chart_timeline.png" alt="Timeline Chart">
+          </div>
+        </div>
+        <div class="card anime-up" style="display: flex; flex-direction: column; justify-content: space-between;">
+          <div>
+            <h3 style="font-size: 1.15rem; color: #fcd34d; margin-bottom: 12px;">🚀 비즈니스 제언 및 결론</h3>
+            <ul class="custom-list">
+              <li><span class="bullet"></span><div><strong>512GB 모델 소구 강화:</strong> 용량 체감 만족도가 512GB에서 월등히 높으므로 카드 할인 연계 권장</div></li>
+              <li><span class="bullet"></span><div><strong>배송 패키징 신뢰도 개선:</strong> 박스 완충 포장 개선 안내 배너 삽입으로 배송 관련 부정 리뷰 선제 차단</div></li>
+              <li><span class="bullet"></span><div><strong>실사용 액세서리 번들링:</strong> 파우치, 거치대 등 휴대 액세서리와의 크로스셀링 전략 추천</div></li>
+            </ul>
+          </div>
+          <div style="border-radius: 14px; overflow: hidden; height: 130px; border: 1px solid rgba(255, 255, 255, 0.1);">
+            <img src="assets/data_insights.jpg" alt="Data Insights Hero" style="width: 100%; height: 100%; object-fit: cover;">
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Controls Bar -->
+  <div class="controls">
+    <button class="btn-nav" id="btn-prev" title="이전 슬라이드 (←)">◀</button>
+    <div class="nav-indicator" id="dots-container"></div>
+    <button class="btn-nav" id="btn-next" title="다음 슬라이드 (→)">▶</button>
+    <button class="btn-nav" id="btn-fullscreen" title="전체화면 (F)">⛶</button>
+  </div>
+
+  <script>
+    // Slide Navigation Logic
+    const slides = document.querySelectorAll('.slide');
+    const totalSlides = slides.length;
+    let currentSlide = 0;
+
+    const progressBar = document.getElementById('progress-bar');
+    const currentSlideNum = document.getElementById('current-slide-num');
+    const totalSlideNum = document.getElementById('total-slide-num');
+    const dotsContainer = document.getElementById('dots-container');
+
+    totalSlideNum.textContent = totalSlides;
+
+    // Create Dots
+    slides.forEach((_, idx) => {
+      const dot = document.createElement('div');
+      dot.classList.add('dot');
+      if (idx === 0) dot.classList.add('active');
+      dot.addEventListener('click', () => goToSlide(idx));
+      dotsContainer.appendChild(dot);
+    });
+
+    const dots = document.querySelectorAll('.dot');
+
+    function animateSlideEnter(slideEl) {
+      const targets = slideEl.querySelectorAll('.anime-up');
+      if (targets.length > 0) {
+        anime.remove(targets);
+        anime({
+          targets: targets,
+          translateY: [24, 0],
+          opacity: [0, 1],
+          duration: 700,
+          delay: anime.stagger(80, {start: 100}),
+          easing: 'easeOutCubic'
+        });
+      }
+
+      // Animate numbers
+      const countInts = slideEl.querySelectorAll('.count-int');
+      countInts.forEach(el => {
+        const targetVal = parseInt(el.getAttribute('data-target'), 10);
+        anime({
+          targets: { val: 0 },
+          val: targetVal,
+          round: 1,
+          duration: 1200,
+          easing: 'easeOutExpo',
+          update: function(anim) {
+            el.innerHTML = anim.animatables[0].target.val + '<span style="font-size: 1.2rem;">건</span>';
+          }
+        });
+      });
+
+      const countFloats = slideEl.querySelectorAll('.count-float');
+      countFloats.forEach(el => {
+        const targetVal = parseFloat(el.getAttribute('data-target'));
+        const unit = el.getAttribute('data-target').includes('.') && targetVal < 10 ? '/ 5.0' : '%';
+        anime({
+          targets: { val: 0 },
+          val: targetVal,
+          duration: 1400,
+          easing: 'easeOutExpo',
+          update: function(anim) {
+            el.innerHTML = anim.animatables[0].target.val.toFixed(targetVal < 10 ? 2 : 1) + `<span style="font-size: 1.2rem;">${unit}</span>`;
+          }
+        });
+      });
+    }
+
+    function updateSlide() {
+      slides.forEach((s, idx) => {
+        s.classList.toggle('active', idx === currentSlide);
+      });
+      dots.forEach((d, idx) => {
+        d.classList.toggle('active', idx === currentSlide);
+      });
+      currentSlideNum.textContent = currentSlide + 1;
+      progressBar.style.width = `${((currentSlide + 1) / totalSlides) * 100}%`;
+
+      // Anime.js Stagger Animation
+      animateSlideEnter(slides[currentSlide]);
+
+      // Initialize or update Chart.js
+      initChartsForSlide(currentSlide + 1);
+    }
+
+    function nextSlide() {
+      if (currentSlide < totalSlides - 1) {
+        currentSlide++;
+        updateSlide();
+      }
+    }
+
+    function prevSlide() {
+      if (currentSlide > 0) {
+        currentSlide--;
+        updateSlide();
+      }
+    }
+
+    function goToSlide(idx) {
+      currentSlide = idx;
+      updateSlide();
+    }
+
+    document.getElementById('btn-next').addEventListener('click', nextSlide);
+    document.getElementById('btn-prev').addEventListener('click', prevSlide);
+
+    // Keyboard Shortcuts
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
+        nextSlide();
+      } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+        prevSlide();
+      } else if (e.key.toLowerCase() === 'f') {
+        toggleFullscreen();
+      }
+    });
+
+    // Fullscreen Toggle
+    function toggleFullscreen() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(err => console.log(err));
+      } else {
+        document.exitFullscreen().catch(err => console.log(err));
+      }
+    }
+    document.getElementById('btn-fullscreen').addEventListener('click', toggleFullscreen);
+
+    // ==========================================
+    // Chart.js Implementations with Dynamic Animation
+    // ==========================================
+    const chartInstances = {};
+
+    Chart.defaults.color = '#94a3b8';
+    Chart.defaults.font.family = "'Pretendard', sans-serif";
+
+    function initChartsForSlide(slideNum) {
+      // Slide 3: Rating Distribution
+      if (slideNum === 3 && !chartInstances['rating']) {
+        const ctx = document.getElementById('ratingChart').getContext('2d');
+        chartInstances['rating'] = new Chart(ctx, {
+          type: 'doughnut',
+          data: {
+            labels: ['5점 (만족)', '4점', '3점', '1점 (불만)'],
+            datasets: [{
+              data: [490, 28, 6, 2],
+              backgroundColor: ['#4ade80', '#38bdf8', '#fcd34d', '#fb7185'],
+              borderWidth: 0,
+              hoverOffset: 12
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            animation: { animateScale: true, animateRotate: true, duration: 1200 },
+            plugins: {
+              legend: { position: 'bottom', labels: { boxWidth: 12, padding: 15 } }
+            },
+            cutout: '68%'
+          }
+        });
+      }
+
+      // Slide 4: Storage Chart
+      if (slideNum === 4 && !chartInstances['storage']) {
+        const ctxS = document.getElementById('storageChart').getContext('2d');
+        chartInstances['storage'] = new Chart(ctxS, {
+          type: 'pie',
+          data: {
+            labels: ['256GB (241명)', '512GB (208명)'],
+            datasets: [{
+              data: [241, 208],
+              backgroundColor: ['#38bdf8', '#818cf8'],
+              borderWidth: 0
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            animation: { animateRotate: true, duration: 1200 },
+            plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, padding: 14 } } }
+          }
+        });
+      }
+
+      // Slide 5: Weight & Performance
+      if (slideNum === 5) {
+        if (!chartInstances['weight']) {
+          const ctxW = document.getElementById('weightChart').getContext('2d');
+          chartInstances['weight'] = new Chart(ctxW, {
+            type: 'bar',
+            data: {
+              labels: ['적당해요', '무거워요', '가벼워요'],
+              datasets: [{
+                data: [352, 119, 55],
+                backgroundColor: ['#38bdf8', '#fb7185', '#4ade80'],
+                borderRadius: 8
+              }]
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: { legend: { display: false } },
+              scales: {
+                y: { grid: { color: 'rgba(255,255,255,0.06)' } },
+                x: { grid: { display: false } }
+              }
+            }
+          });
+        }
+        if (!chartInstances['perf']) {
+          const ctxP = document.getElementById('perfChart').getContext('2d');
+          chartInstances['perf'] = new Chart(ctxP, {
+            type: 'doughnut',
+            data: {
+              labels: ['좋아요 (461명)', '보통이에요 (65명)'],
+              datasets: [{
+                data: [461, 65],
+                backgroundColor: ['#c084fc', '#64748b'],
+                borderWidth: 0
+              }]
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, padding: 14 } } },
+              cutout: '70%'
+            }
+          });
+        }
+      }
+    }
+
+    // Initialize slide 1 on load
+    updateSlide();
+  </script>
+</body>
+</html>
