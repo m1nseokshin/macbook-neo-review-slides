@@ -19,16 +19,17 @@ import numpy as np
 plt.rcParams['font.family'] = 'AppleGothic'
 plt.rcParams['axes.unicode_minus'] = False
 
-BG_COLOR = '#0f111a'
-CARD_BG = '#161926'
+# SEED Design System Color Tokens (Dark Theme)
+BG_COLOR = '#101217'
+CARD_BG = '#181a22'
 TEXT_COLOR = '#f8fafc'
-MUTED_COLOR = '#94a3b8'
-CITRUS = '#fcd34d'
-BLUE = '#38bdf8'
-INDIGO = '#818cf8'
-PURPLE = '#c084fc'
-ROSE = '#fb7185'
-GREEN = '#4ade80'
+MUTED_COLOR = '#9ca3af'
+CITRUS = '#ff6f0f'   # SEED Brand Solid (Carrot Orange)
+BLUE = '#368fff'     # SEED Informative Blue
+INDIGO = '#6366f1'   # Indigo
+PURPLE = '#a855f7'   # Purple
+ROSE = '#ff5247'     # SEED Critical Red
+GREEN = '#2ac187'    # SEED Positive Green
 
 os.makedirs('assets', exist_ok=True)
 
