@@ -25,6 +25,7 @@ async def run_verification():
     async with async_playwright() as p:
         browser = await p.chromium.launch(
             headless=True,
+            channel='chrome',
             args=['--allow-file-access-from-files']
         )
         context = await browser.new_context(
